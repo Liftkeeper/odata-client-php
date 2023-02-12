@@ -17,6 +17,8 @@
 
 namespace SaintSystems\OData;
 
+use Closure;
+
 /**
  * Class ODataResponse
  *
@@ -145,7 +147,7 @@ class ODataResponse
 	 *
 	 * @return mixed object or array of objects of type $returnType
 	 */
-	public function getResponseAsObject($returnType)
+	public function getResponseAsObject($returnType, ?Closure $alterResult = null)
 	{
 		$class = $returnType;
 		$result = $this->getBody();
@@ -154,11 +156,11 @@ class ODataResponse
 		if (array_key_exists(Constants::ODATA_VALUE, $result)) {
 			$objArray = array();
 
-			if(is_string($result[Constants::ODATA_VALUE])) {
-				$result[Constants::ODATA_VALUE] = json_decode($result[Constants::ODATA_VALUE]);
+			if($alterResult !== null) {
+				$result[Constants::ODATA_VALUE] = $alterResult($result);
 			}
 
-			foreach ($result[Constants::ODATA_VALUE] as &$obj) {
+			foreach ($result[Constants::ODATA_VALUE] as $obj) {
 				if(is_string($obj)) {
 					$obj = [$obj];
 				}
